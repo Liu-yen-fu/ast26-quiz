@@ -7,9 +7,9 @@ options:
     correct: true
     explanation: |
       HNSW 依賴 best-first search 在圖中跳轉，每一跳都基於 PQ 後的距離。誤差可能導致搜尋陷入局部最優解或偏離目標路徑，且這種路徑偏差是不可逆的。
-  - text: "IVF 在 coarse quantization 階段已經將資料分群，因此即使 PQ 引入誤差，也會被 cluster 結構平均掉"
+  - text: "IVF 在 coarse quantization 階段已經將資料分群，雖然在 cluster 內部排序時會因為 PQ 產生誤差，但這些誤差會互相抵銷使得每個 cluster 與 query vector 的距離誤差平均下來接近 0 ，因此整個 cluster 的距離評估大致還是準的"
     explanation: |
-      問題在於 IVF 並不是「使誤差被平均掉」，而是「限制誤差影響範圍」。IVF Recall 掉得少，是因為它搜尋範圍是「桶子」，只要目標在桶子裡，PQ 誤差頂多讓排名（Rank）微調，不至於讓目標消失。
+      問題在於 IVF 並不是「使誤差被平均掉」，而是「限制誤差影響範圍」。IVF Recall 掉得少，是因為 coarse quantizer 已經先縮小搜尋空間到 cluster 內部，之後才用到 PQ ，所以 PQ 的誤差只影響局部排序
   - text: "HNSW 的多層圖結構會讓 PQ 的壓縮率被迫提高"
     explanation: |
       PQ 的壓縮率與索引結構（ IVF 或 HNSW ）是獨立的。PQ 只是把向量切塊壓縮，不論你用什麼索引，壓縮後的資料大小和精度損失主要取決於你設定的 M ，而非圖的複雜度。
